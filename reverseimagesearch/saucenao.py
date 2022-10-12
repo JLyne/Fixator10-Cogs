@@ -5,11 +5,6 @@ from aiohttp import ClientResponseError
 from dateutil.parser import parse
 from redbot.core.i18n import Translator
 
-try:
-    from redbot import json  # support of Draper's branch
-except ImportError:
-    import json
-
 _ = Translator("ReverseImageSearch", __file__)
 
 BASE_API_URL = "https://saucenao.com/search.php"
@@ -88,7 +83,7 @@ class SauceNAO:
                 async with ctx.cog.session.get(
                     BASE_API_URL, params=params, raise_for_status=True
                 ) as data:
-                    data = await data.json(loads=json.loads)
+                    data = await data.json()
                     if data.get("status", 0) != 0:
                         if data.get("status") > 0:
                             raise ValueError(

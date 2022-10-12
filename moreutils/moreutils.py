@@ -9,12 +9,6 @@ from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils import chat_formatting as chat
 from tabulate import tabulate
 
-try:
-    from redbot import json  # support of Draper's branch
-except ImportError:
-    import json
-
-
 T_ = Translator("MoreUtils", __file__)
 _ = lambda s: s
 
@@ -99,7 +93,7 @@ class MoreUtils(commands.Cog):
     # noinspection PyMissingConstructor
     def __init__(self, bot):
         self.bot = bot
-        self.session = aiohttp.ClientSession(json_serialize=json.dumps)
+        self.session = aiohttp.ClientSession()
 
     def cog_unload(self):
         self.bot.loop.create_task(self.session.close())
@@ -159,7 +153,7 @@ class MoreUtils(commands.Cog):
         async with self.session.get(
             "https://www.thecolorapi.com/id", params={"hex": str(color)[1:]}
         ) as data:
-            color_response = await data.json(loads=json.loads)
+            color_response = await data.json()
             em.description = (
                 _("`Name:` {} ({})\n").format(
                     color_response.get("name", {}).get("value", "?"),
@@ -208,7 +202,7 @@ class MoreUtils(commands.Cog):
                 async with self.session.get(
                     "https://srhpyqt94yxb.statuspage.io/api/v2/summary.json"
                 ) as data:
-                    response = await data.json(loads=json.loads)
+                    response = await data.json()
             except Exception as e:
                 await ctx.send(
                     chat.error(

@@ -13,11 +13,6 @@ from .converters import ImageFinder
 from .saucenao import SauceNAO
 from .tracemoe import TraceMoe
 
-try:
-    from redbot import json  # support of Draper's branch
-except ImportError:
-    import json
-
 _ = Translator("ReverseImageSearch", __file__)
 
 
@@ -67,7 +62,7 @@ class ReverseImageSearch(commands.Cog):
             "long_remaining": None,
             "short_remaining": None,
         }
-        self.session = aiohttp.ClientSession(json_serialize=json.dumps)
+        self.session = aiohttp.ClientSession()
         self.config = Config.get_conf(self, identifier=0x02E801D017C140A9A0C840BA01A25066)
         default_global = {"numres": 6}
         self.config.register_global(**default_global)

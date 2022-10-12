@@ -16,11 +16,6 @@ from tabulate import tabulate
 
 from .discord_py_future import edit_role_icon
 
-try:
-    from redbot import json  # support of Draper's branch
-except ImportError:
-    import json
-
 _ = Translator("PersonalRoles", __file__)
 
 
@@ -47,7 +42,7 @@ class PersonalRoles(commands.Cog):
     # noinspection PyMissingConstructor
     def __init__(self, bot):
         self.bot = bot
-        self.session = aiohttp.ClientSession(json_serialize=json.dumps)
+        self.session = aiohttp.ClientSession()
         self.config = Config.get_conf(self, identifier=0x3D86BBD3E2B744AE8AA8B5D986EB4DD8)
         default_member = {"role": None}
         default_guild = {"blacklist": [], "role_persistence": True}
@@ -303,8 +298,6 @@ class PersonalRoles(commands.Cog):
             await ctx.send(
                 chat.error(_("Unable to edit role.\nRole must be lower than my top role"))
             )
-        except discord.InvalidArgument:
-            await ctx.send(chat.error(_("This image type is unsupported, or link is incorrect")))
         except discord.HTTPException as e:
             ctx.command.reset_cooldown(ctx)
             await ctx.send(chat.error(_("Unable to edit role: {}").format(e)))
@@ -341,8 +334,6 @@ class PersonalRoles(commands.Cog):
             await ctx.send(
                 chat.error(_("Unable to edit role.\nRole must be lower than my top role"))
             )
-        except discord.InvalidArgument:
-            await ctx.send(chat.error(_("This image type is unsupported, or link is incorrect")))
         except discord.HTTPException as e:
             ctx.command.reset_cooldown(ctx)
             await ctx.send(chat.error(_("Unable to edit role: {}").format(e)))

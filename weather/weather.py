@@ -14,11 +14,6 @@ from redbot.core.utils.menus import DEFAULT_CONTROLS, menu
 from requests.exceptions import ConnectionError as RequestsConnectionError
 from requests.exceptions import HTTPError, Timeout
 
-try:
-    from redbot import json  # support of Draper's branch
-except ImportError:
-    import json
-
 FORECASTIO_SUPPORTED_LANGS = [
     "ar",
     "az",
@@ -146,7 +141,6 @@ class Weather(commands.Cog):
         default_guild = {"units": "si"}
         self.config.register_guild(**default_guild)
         self.session = aiohttp.ClientSession(
-            json_serialize=json.dumps,
             raise_for_status=True,
         )
 
@@ -268,7 +262,7 @@ class Weather(commands.Cog):
                         "User-Agent": f"Red-DiscordBot/{redbot_ver} Fixator10-Cogs/Weather/{self.__version__}",
                     },
                 ) as r:
-                    location = await r.json(loads=json.loads)
+                    location = await r.json()
             except aiohttp.ClientResponseError as e:
                 await ctx.send(
                     chat.error(
@@ -393,7 +387,7 @@ class Weather(commands.Cog):
                         "User-Agent": f"Red-DiscordBot/{redbot_ver} Fixator10-Cogs/Weather/{self.__version__}",
                     },
                 ) as r:
-                    location = await r.json(loads=json.loads)
+                    location = await r.json()
             except aiohttp.ClientResponseError as e:
                 await ctx.send(
                     chat.error(

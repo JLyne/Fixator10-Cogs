@@ -16,11 +16,6 @@ from redbot.core.utils import chat_formatting as chat
 
 from .converters import PySupportedEncoding
 
-try:
-    from redbot import json  # support of Draper's branch
-except ImportError:
-    import json
-
 _ = Translator("Translators", __file__)
 
 USERAGENT = (
@@ -52,7 +47,7 @@ class Translators(commands.Cog):
     # noinspection PyMissingConstructor
     def __init__(self, bot):
         self.bot = bot
-        self.session = aiohttp.ClientSession(json_serialize=json.dumps)
+        self.session = aiohttp.ClientSession()
 
     def cog_unload(self):
         self.bot.loop.create_task(self.session.close())

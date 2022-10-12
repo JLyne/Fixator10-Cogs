@@ -13,12 +13,6 @@ from redbot.core.utils import chat_formatting as chat
 
 from .minecraftplayer import MCPlayer
 
-try:
-    from redbot import json  # support of Draper's branch
-except ImportError:
-    import json
-
-
 _ = Translator("MinecraftData", __file__)
 
 
@@ -31,7 +25,7 @@ class MinecraftData(commands.Cog):
     # noinspection PyMissingConstructor
     def __init__(self, bot):
         self.bot = bot
-        self.session = aiohttp.ClientSession(json_serialize=json.dumps)
+        self.session = aiohttp.ClientSession()
 
     def cog_unload(self):
         self.bot.loop.create_task(self.session.close())
@@ -206,7 +200,7 @@ class MinecraftData(commands.Cog):
             async with self.session.get(
                 f"http://textures.5zig.net/textures/2/{uuid}", raise_for_status=True
             ) as data:
-                response_data = await data.json(content_type=None, loads=json.loads)
+                response_data = await data.json(content_type=None)
             cape = response_data["cape"]
         except aiohttp.ClientResponseError as e:
             if e.status == 404:
@@ -233,7 +227,7 @@ class MinecraftData(commands.Cog):
             async with self.session.get(
                 f"http://textures.5zig.net/textures/2/{uuid}", raise_for_status=True
             ) as data:
-                response_data = await data.json(content_type=None, loads=json.loads)
+                response_data = await data.json(content_type=None)
             if "animatedCape" not in response_data:
                 await ctx.send(
                     chat.error(_("{} doesn't have animated 5zig cape")).format(player.name)

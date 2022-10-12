@@ -25,12 +25,6 @@ with suppress(Exception):
 
 from .steamuser import SteamUser
 
-try:
-    from redbot import json  # support of Draper's branch
-except ImportError:
-    import json
-
-
 USERAGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
     "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -83,7 +77,7 @@ class SteamCommunity(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.steam = None
-        self.session = aiohttp.ClientSession(json_serialize=json.dumps)
+        self.session = aiohttp.ClientSession()
         self.status_data = {"last_update": 0.0, "data": {}}
 
     def cog_unload(self):
@@ -208,7 +202,7 @@ class SteamCommunity(commands.Cog):
                         headers={"referer": "https://steamstat.us/", "User-Agent": USERAGENT},
                         raise_for_status=True,
                     ) as gravity:
-                        data = await gravity.json(loads=json.loads)
+                        data = await gravity.json()
                         self.status_data["data"] = data
                         self.status_data["last_update"] = time()
                 except aiohttp.ClientResponseError as e:
