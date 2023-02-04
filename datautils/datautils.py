@@ -65,12 +65,12 @@ class DataUtils(commands.Cog):
         em.add_field(name=_("Mention"), value=user.mention)
         em.add_field(
             name=_("Default avatar"),
-            value=f"[{user.default_avatar}]({user.default_avatar_url})",
+            value=f"[{user.default_avatar}]({user.default_avatar.url})",
         )
         if user.avatar:
             em.add_field(
                 name=_("Avatar"),
-                value=f"[`{user.avatar}`]({user.avatar_url_as(static_format='png', size=4096)})",
+                value=f"[`{user.avatar}`]({user.avatar.replace(static_format='png', size=4096)})",
             )
         if user.public_flags.value:
             em.add_field(
@@ -81,8 +81,8 @@ class DataUtils(commands.Cog):
                 ),
                 inline=False,
             )
-        em.set_image(url=user.avatar_url_as(static_format="png", size=4096))
-        em.set_thumbnail(url=user.default_avatar_url)
+        em.set_image(url=user.avatar.replace(static_format="png", size=4096))
+        em.set_thumbnail(url=user.default_avatar.url)
         em.set_footer(text=_("Created at"))
         await ctx.send(embed=em)
 
@@ -127,16 +127,16 @@ class DataUtils(commands.Cog):
                 em.add_field(
                     name=_("Features"),
                     value="\n".join(_(GUILD_FEATURES.get(f, f)) for f in guild.features).format(
-                        banner=guild.banner and f" [🔗]({guild.banner_url_as(format='png')})" or "",
-                        splash=guild.splash and f" [🔗]({guild.splash_url_as(format='png')})" or "",
+                        banner=guild.banner and f" [🔗]({guild.banner.replace(format='png')})" or "",
+                        splash=guild.splash and f" [🔗]({guild.splash.replace(format='png')})" or "",
                         discovery=getattr(guild, "discovery_splash", None)
-                        and f" [🔗]({guild.discovery_splash_url_as(format='png')})"
+                        and f" [🔗]({guild.discovery_splash.replace(format='png')})"
                         or "",
                     ),
                     inline=False,
                 )
             if invite.guild.icon:
-                em.set_image(url=invite.guild.icon_url_as(static_format="png", size=4096))
+                em.set_image(url=invite.guild.icon.replace(static_format="png", size=4096))
         em.add_field(name=_("Stats"), value=stats_text, inline=False)
         if widget.invite_url:
             em.add_field(name=_("Widget's invite"), value=widget.invite_url)
@@ -151,7 +151,7 @@ class DataUtils(commands.Cog):
             member = ctx.message.author
         em = discord.Embed(
             title=chat.escape(str(member), formatting=True),
-            color=member.color.value and member.color or discord.Embed.Empty,
+            color=member.color.value and member.color or None,
         )
         if member.nick:
             em.add_field(name=_("Nickname"), value=member.nick)
@@ -212,8 +212,8 @@ class DataUtils(commands.Cog):
                 ),
                 inline=False,
             )
-        em.set_image(url=member.avatar_url_as(static_format="png", size=4096))
-        # em.set_thumbnail(url=member.default_avatar_url)
+        em.set_image(url=member.avatar.replace(static_format="png", size=4096))
+        # em.set_thumbnail(url=member.default_avatar.url)
         await ctx.send(embed=em)
 
     @commands.command(aliases=["activity"])
@@ -243,7 +243,7 @@ class DataUtils(commands.Cog):
         em = discord.Embed(
             title=_("Server info"),
             description=server.description and server.description or None,
-            color=server.owner.color.value and server.owner.color or discord.Embed.Empty,
+            color=server.owner.color.value and server.owner.color or None,
         )
         em.add_field(name=_("Name"), value=chat.escape(server.name, formatting=True))
         em.add_field(name=_("Server ID"), value=server.id)
@@ -251,7 +251,6 @@ class DataUtils(commands.Cog):
             name=_("Exists since"),
             value=get_markdown_timestamp(server.created_at, TimestampStyle.datetime_long),
         )
-        em.add_field(name=_("Region"), value=server.region)
         if server.preferred_locale:
             em.add_field(name=_("Discovery language"), value=server.preferred_locale)
         em.add_field(name=_("Owner"), value=chat.escape(str(server.owner), formatting=True))
@@ -355,10 +354,10 @@ class DataUtils(commands.Cog):
                 value="\n".join(
                     sorted(_(GUILD_FEATURES.get(f, f)) for f in server.features)
                 ).format(
-                    banner=server.banner and f" [🔗]({server.banner_url_as(format='png')})" or "",
-                    splash=server.splash and f" [🔗]({server.splash_url_as(format='png')})" or "",
+                    banner=server.banner and f" [🔗]({server.banner.replace(format='png')})" or "",
+                    splash=server.splash and f" [🔗]({server.splash.replace(format='png')})" or "",
                     discovery=server.discovery_splash
-                    and f" [🔗]({server.discovery_splash_url_as(format='png')})"
+                    and f" [🔗]({server.discovery_splash.replace(format='png')})"
                     or "",
                 ),
                 inline=False,
@@ -371,7 +370,7 @@ class DataUtils(commands.Cog):
         em.add_field(name=_("Roles"), value=roles_str, inline=False)
         if widget.invite_url:
             em.add_field(name=_("Widget's invite"), value=widget.invite_url)
-        em.set_image(url=server.icon_url_as(static_format="png", size=4096))
+        em.set_image(url=server.icon.replace(static_format="png", size=4096))
         await ctx.send(embed=em)
 
     @commands.command()
@@ -385,7 +384,7 @@ class DataUtils(commands.Cog):
         if not server.me.guild_permissions.ban_members:
             await ctx.send(_('I need permission "Ban Members" to access banned members on server'))
             return
-        banlist = await server.bans()
+        banlist = [entry async for entry in server.bans(limit=2000)]
         if banlist:
             banlisttext = "\n".join(f"{x.user} ({x.user.id})" for x in banlist)
             await BaseMenu(PagePager(list(chat.pagify(banlisttext)))).start(ctx)
@@ -440,7 +439,7 @@ class DataUtils(commands.Cog):
                 len(channel.stage_channels),
             )
             if isinstance(channel, discord.CategoryChannel)
-            else discord.Embed.Empty,
+            else None,
             color=await ctx.embed_color(),
         )
         em.add_field(name=_("ID"), value=channel.id)
@@ -479,12 +478,11 @@ class DataUtils(commands.Cog):
                 )
             em.add_field(name=_("NSFW"), value=bool_emojify(channel.is_nsfw()))
             if (
-                channel.guild.me.permissions_in(channel).manage_webhooks
+                channel.permissions_for(channel.guild.me).manage_webhooks
                 and await channel.webhooks()
             ):
                 em.add_field(name=_("Webhooks count"), value=str(len(await channel.webhooks())))
         elif isinstance(channel, (discord.VoiceChannel, discord.StageChannel)):
-            em.add_field(name=_("Region"), value=channel.rtc_region or _("Automatic"))
             em.add_field(name=_("Bitrate"), value=_("{}kbps").format(channel.bitrate / 1000))
             em.add_field(
                 name=_("Users"),
@@ -523,7 +521,7 @@ class DataUtils(commands.Cog):
         """Get info about role"""
         em = discord.Embed(
             title=chat.escape(role.name, formatting=True),
-            color=role.color if role.color.value else discord.Embed.Empty,
+            color=role.color if role.color.value else None,
         )
         em.add_field(name=_("ID"), value=role.id)
         em.add_field(
