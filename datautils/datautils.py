@@ -72,6 +72,11 @@ class DataUtils(commands.Cog):
                 name=_("Avatar"),
                 value=f"[`{user.avatar}`]({user.avatar.replace(static_format='png', size=4096)})",
             )
+        if user.guild_avatar:
+            em.add_field(
+                name=_("Server avatar"),
+                value=f"[`{user.guild_avatar}`]({user.guild_avatar.replace(static_format='png', size=4096)})",
+            )
         if user.public_flags.value:
             em.add_field(
                 name=_("Public flags"),
@@ -81,7 +86,7 @@ class DataUtils(commands.Cog):
                 ),
                 inline=False,
             )
-        em.set_image(url=user.avatar.replace(static_format="png", size=4096))
+        em.set_image(url=user.display_avatar.replace(static_format="png", size=4096))
         em.set_thumbnail(url=user.default_avatar.url)
         em.set_footer(text=_("Created at"))
         await ctx.send(embed=em)
@@ -212,7 +217,7 @@ class DataUtils(commands.Cog):
                 ),
                 inline=False,
             )
-        em.set_image(url=member.avatar.replace(static_format="png", size=4096))
+        em.set_image(url=member.display_avatar.replace(static_format="png", size=4096))
         # em.set_thumbnail(url=member.default_avatar.url)
         await ctx.send(embed=em)
 
